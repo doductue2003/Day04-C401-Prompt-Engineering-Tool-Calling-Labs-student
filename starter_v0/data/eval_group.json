@@ -1,7 +1,285 @@
 {
   "dataset_id": "day04_v2_research_group",
   "dataset_role": "group",
-  "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
-  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "description": "Case do NHOM tu viet them de cover them truong hop. Moi case can: id, phase='B', query HOAC turns, failure_type, va expect.",
+  "allowed_failure_types": [
+    "wrong_tool",
+    "wrong_arg_value",
+    "wrong_boundary",
+    "unnecessary_tool",
+    "out_of_scope",
+    "missing_info"
+  ],
+  "cases": [
+    {
+      "id": "G01_timeline_openai",
+      "phase": "B",
+      "query": "Lay 3 tweet moi nhat cua Sam Altman",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "sama",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Map Sam Altman to sama and extract limit=3."
+      }
+    },
+    {
+      "id": "G02_social_top_posts",
+      "phase": "B",
+      "query": "Tim 2 bai dang pho bien nhat ve OpenAI tren X",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "OpenAI",
+              "search_type": "Top",
+              "limit": 2
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Route social keyword search to social_search with Top and limit=2."
+      }
+    },
+    {
+      "id": "G03_lookup_today_news",
+      "phase": "B",
+      "query": "Tim 4 tin tuc AI moi trong hom nay",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "AI",
+              "topic": "news",
+              "timeframe": "day",
+              "max_results": 4
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Route web news to lookup with topic=news timeframe=day max_results=4."
+      }
+    },
+    {
+      "id": "G04_fetch_specific_url",
+      "phase": "B",
+      "query": "Doc va tom tat trang https://openai.com/research/",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://openai.com/research/"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Use fetch only when a URL is provided."
+      }
+    },
+    {
+      "id": "G05_missing_article_url",
+      "phase": "B",
+      "query": "Tom tat bai viet nay cho toi",
+      "failure_type": "missing_info",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Ask for URL when the article/page is missing."
+      }
+    },
+    {
+      "id": "G06_multiturn_missing_handle_then_fill",
+      "phase": "B",
+      "turns": [
+        {
+          "user": "Lay 2 tweet moi nhat cua nguoi do"
+        },
+        {
+          "user": "Sam Altman"
+        }
+      ],
+      "failure_type": "missing_info",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          },
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "sama",
+              "limit": 2
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Clarify missing handle, then use supplied person name."
+      }
+    },
+    {
+      "id": "G07_multiturn_missing_url_then_fetch",
+      "phase": "B",
+      "turns": [
+        {
+          "user": "Doc bai nay va cho toi y chinh"
+        },
+        {
+          "user": "https://openai.com/research/"
+        }
+      ],
+      "failure_type": "missing_info",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          },
+          {
+            "name": "fetch",
+            "args": {
+              "url": "https://openai.com/research/"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Clarify missing URL, then fetch the provided URL."
+      }
+    },
+    {
+      "id": "G08_multiturn_search_type_correction",
+      "phase": "B",
+      "turns": [
+        {
+          "user": "Tim 3 bai dang moi nhat ve Gemini tren X"
+        },
+        {
+          "user": "Y toi la bai pho bien nhat"
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "query": "Gemini",
+              "search_type": "Latest",
+              "limit": 3
+            }
+          },
+          {
+            "name": "social_search",
+            "args": {
+              "query": "Gemini",
+              "search_type": "Top",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Carry query and limit while correcting search_type from Latest to Top."
+      }
+    },
+    {
+      "id": "G09_multiturn_send_requires_confirmation",
+      "phase": "B",
+      "turns": [
+        {
+          "user": "Dang len Telegram: Bao cao AI hom nay da san sang"
+        },
+        {
+          "user": "Dong y gui"
+        }
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          },
+          {
+            "name": "send",
+            "args": {
+              "text": "Bao cao AI hom nay da san sang",
+              "confirmed": true
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Require confirmation before send, then send only after confirmation."
+      }
+    },
+    {
+      "id": "G10_multiturn_switch_timeline_to_web_news",
+      "phase": "B",
+      "turns": [
+        {
+          "user": "Lay 2 tweet moi nhat cua Elon Musk"
+        },
+        {
+          "user": "Khong, tim tin tuc web moi tuan nay ve Elon Musk"
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 2
+            }
+          },
+          {
+            "name": "lookup",
+            "args": {
+              "query": "Elon Musk",
+              "topic": "news",
+              "timeframe": "week"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "what_it_tests": "Switch from timeline to web news lookup after correction."
+      }
+    }
+  ]
 }
