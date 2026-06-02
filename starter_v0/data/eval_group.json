@@ -1,6 +1,105 @@
 {
   "dataset_id": "day04_v2_research_group",
   "dataset_role": "group",
+  "description": "10 team-written cases: 5 single-turn, 5 multi-turn (tests for routing, confirmation, args, and boundaries).",
+  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
+  "cases": [
+    {
+      "id": "G01",
+      "phase": "B",
+      "query": "Gửi tin nhắn này lên Telegram: 'Bản tin thử nghiệm nhóm'",
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "send", "args": {"text": "Bản tin thử nghiệm nhóm", "confirmed": true}}]},
+      "metadata": {"what_it_tests": "Agent must ask for confirmation or respect confirmed=true."}
+    },
+    {
+      "id": "G02",
+      "phase": "B",
+      "query": "Tìm bài báo về 'evaluation of research agents' và show 1 title",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "papers", "args": {"query": "evaluation of research agents", "max_results": 1}}]},
+      "metadata": {"what_it_tests": "Route to papers tool for arXiv search."}
+    },
+    {
+      "id": "G03",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Tôi muốn tin tức AI hôm nay"},
+        {"role": "assistant", "content": null},
+        {"role": "user", "content": "Cụ thể là về GPT-5"}
+      ],
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "lookup", "args": {"query": "GPT-5 news", "topic": "news", "timeframe": "day"}}]},
+      "metadata": {"what_it_tests": "Multi-turn: back-and-forth then lookup."}
+    },
+    {
+      "id": "G04",
+      "phase": "B",
+      "query": "Echo this: 'hello team'",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "echo", "args": {"text": "hello team"}}]},
+      "metadata": {"what_it_tests": "Route to new echo tool."}
+    },
+    {
+      "id": "G05",
+      "phase": "B",
+      "query": "Give me latest tweets about OpenAI",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "social_search", "args": {"query": "OpenAI", "search_type": "Latest", "limit": 5}}]},
+      "metadata": {"what_it_tests": "social_search routing and args."}
+    },
+    {
+      "id": "G06",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Hãy tóm tắt bài này: https://openai.com/blog"},
+        {"role": "assistant", "content": null}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "fetch", "args": {"url": "https://openai.com/blog"}}]},
+      "metadata": {"what_it_tests": "fetch URL and then format."}
+    },
+    {
+      "id": "G07",
+      "phase": "B",
+      "query": "Tìm chính sách internal về 'source citation'",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "policy", "args": {"query": "source citation", "policy_area": "source_citation", "top_k": 3}}]},
+      "metadata": {"what_it_tests": "policy tool routing."}
+    },
+    {
+      "id": "G08",
+      "phase": "B",
+      "query": "Giá Bitcoin hiện tại là bao nhiêu?",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "crypto_price", "args": {"coin_id": "bitcoin"}}]},
+      "metadata": {"what_it_tests": "crypto_price routing."}
+    },
+    {
+      "id": "G09",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Gửi tin nhắn: Hủy đăng ký mọi thông báo"},
+        {"role": "assistant", "content": null},
+        {"role": "user", "content": "Không, không gửi đâu"}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [] , "no_tool": true},
+      "metadata": {"what_it_tests": "Ensure agent cancels send on negation."}
+    },
+    {
+      "id": "G10",
+      "phase": "B",
+      "query": "Search web for 'AI agent evaluation 2025' within last month",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "lookup", "args": {"query": "AI agent evaluation 2025", "topic": "news", "timeframe": "month"}}]},
+      "metadata": {"what_it_tests": "lookup timeframe argument enforcement."}
+    }
+  ]
+}
+{
+  "dataset_id": "day04_v2_research_group",
+  "dataset_role": "group",
   "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
   "cases": []

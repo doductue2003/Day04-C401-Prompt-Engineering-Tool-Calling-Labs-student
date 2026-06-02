@@ -124,3 +124,12 @@ tools:
       properties:
         coin_id: {type: string, default: "bitcoin", description: "Tên hoặc ID của đồng coin (vd: bitcoin, ethereum, solana)"}
       required: [coin_id]
+
+  # Simple test tool (no side effects)
+  - name: echo
+    description: "Trả lại nguyên văn nội dung 'text' để test routing/args." 
+    parameters:
+      type: object
+      properties:
+        text: {type: string, default: "", description: "Nội dung cần echo"}
+      required: [text]
